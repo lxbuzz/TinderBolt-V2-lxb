@@ -10,7 +10,7 @@ load_dotenv()
 
 # тут будем писать наш код :)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
-
+CHAT_GPT_TOKEN = os.getenv("OPENAI_TOKEN")
 
 #print(f"Бот запущен\nТокен: {TELEGRAM_BOT_TOKEN}")
 
