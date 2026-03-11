@@ -95,14 +95,15 @@ async def profile_dialog(update, context):
         dialog.user["hobby"] = text
         await send_text(update, context, "Потрясающе!  Что Вам не нравится в людях?")
     elif dialog.count == 4:
-        dialog.user["dislikes"] = text
+        dialog.user["annoys"] = text
         await send_text(update, context, "Спасибо за информацию! Цель знакомства?")
     elif dialog.count == 5:
-        dialog.user["goal"] = text
+        dialog.user["goals"] = text
         prompt = load_prompt("profile")
         user_info= dialog_user_info_to_str(dialog.user)
+        my_message = await send_text(update, context, "ChatGPT генерирует Ваш профиль для Tinder...")
         answer= await chatgpt.send_question(prompt, user_info)
-        await send_text(update, context, "Ваш сгенерированный профиль для Tinder:\n{}".format(answer))
+        await my_message.edit_text("Ваш сгенерированный профиль для Tinder:\n{}".format(answer))
 
 
 
