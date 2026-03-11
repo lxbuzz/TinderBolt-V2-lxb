@@ -30,4 +30,9 @@ auth.json
 *.log
 *.sqlite
 
+*.idea/
+*.iml
+
+
+
 
