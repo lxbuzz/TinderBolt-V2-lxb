@@ -72,7 +72,37 @@ async def message_dialog(update, context):
     dialog.list.append(text)
 
 
+async def profile(update, context):
+    dialog.mode = "profile"
+    text = load_message("profile")
+    await send_photo(update, context, "profile")
+    await send_text(update, context, text)
 
+    dialog.count = 0 # счетчик сообщений для отслеживания этапов диалога
+    await send_text(update, context, "Для начала расскажите о себе: сколько Вам лет?")
+
+async def profile_dialog(update, context):
+    text = update.message.text
+    dialog.count += 1
+
+    if dialog.count == 1:
+        dialog.user["age"] = text
+        await send_text(update, context, "Отлично!  Кем Вы работаете?")
+    elif dialog.count == 2:
+        dialog.user["occupation"] = text
+        await send_text(update, context, "Здорово!  Какие у Вас хобби?")
+    elif dialog.count == 3:
+        dialog.user["hobby"] = text
+        await send_text(update, context, "Потрясающе!  Что Вам не нравится в людях?")
+    elif dialog.count == 4:
+        dialog.user["dislikes"] = text
+        await send_text(update, context, "Спасибо за информацию! Цель знакомства?")
+    elif dialog.count == 5:
+        dialog.user["goal"] = text
+        prompt = load_prompt("profile")
+        user_info= dialog_user_info_to_str(dialog.user)
+        answer= await chatgpt.send_question(prompt, user_info)
+        await send_text(update, context, "Ваш сгенерированный профиль для Tinder:\n{}".format(answer))
 
 
 
@@ -83,6 +113,8 @@ async def hello(update, context):
         await date_dialog(update, context)
     elif dialog.mode == "message":
         await message_dialog(update, context)
+    elif dialog.mode == "profile":
+        await profile_dialog(update, context)    
     else:
         await send_text(update, context, "*Привет*")
         await send_text(update, context, "_Как дела?_")
@@ -124,6 +156,9 @@ async def date_button(update, context):
 dialog= Dialog() # глобальная переменная для хранения состояния диалога
 dialog.mode= None
 dialog.list = [] # сюда будем сохранять историю сообщений для передачи в ChatGPT
+dialog.count = 0 # универсальный счетчик для отслеживания этапов диалога
+dialog.user = {} # словарь для хранения информации о пользователе (для генерации профиля)
+
 
 
 chatgpt = ChatGptService (CHAT_GPT_TOKEN) # глобальная переменная для общения с ChatGPT
@@ -140,5 +175,8 @@ app.add_handler(CallbackQueryHandler(message_button, pattern="^message_.*"))
 
 app.add_handler(CommandHandler("date", date))
 app.add_handler(CallbackQueryHandler(date_button, pattern="^date_.*"))
+
+app.add_handler(CommandHandler("profile", profile))
+
 
 app.run_polling()
