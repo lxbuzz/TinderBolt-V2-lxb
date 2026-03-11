@@ -105,7 +105,34 @@ async def profile_dialog(update, context):
         answer= await chatgpt.send_question(prompt, user_info)
         await my_message.edit_text("Ваш сгенерированный профиль для Tinder:\n{}".format(answer))
 
+async def opener(update, context):
+    dialog.mode = "opener"
+    dialog.count = 0
+    await send_text(update, context, "Имя девушки?")
 
+async def opener_dialog(update, context):
+    text = update.message.text
+    dialog.count += 1
+
+    if dialog.count == 1:
+        dialog.user["name"] = text
+        await send_text(update, context, "Сколько ей лет?")
+    elif dialog.count == 2:
+        dialog.user["age"] = text
+        await send_text(update, context, "Оцените ее внешность: 1-10 баллов?")
+    elif dialog.count == 3:
+        dialog.user["handsome"] = text
+        await send_text(update, context, "Кем она работает?")
+    elif dialog.count == 4:
+        dialog.user["occupation"] = text
+        await send_text(update, context, "Цель знакомства?")
+    elif dialog.count == 5:
+        dialog.user["goals"] = text
+        prompt = load_prompt("opener")
+        user_info = dialog_user_info_to_str(dialog.user)
+        my_opener_message = await send_text(update, context, "ChatGPT генерирует Ваш Opener для Tinder...")  
+        answer = await chatgpt.send_question(prompt, user_info)
+        await my_opener_message.edit_text(answer)
 
 async def hello(update, context):
     if dialog.mode == "gpt":
@@ -115,7 +142,9 @@ async def hello(update, context):
     elif dialog.mode == "message":
         await message_dialog(update, context)
     elif dialog.mode == "profile":
-        await profile_dialog(update, context)    
+        await profile_dialog(update, context) 
+    elif dialog.mode == "opener":
+        await opener_dialog(update, context)   
     else:
         await send_text(update, context, "*Привет*")
         await send_text(update, context, "_Как дела?_")
@@ -178,6 +207,8 @@ app.add_handler(CommandHandler("date", date))
 app.add_handler(CallbackQueryHandler(date_button, pattern="^date_.*"))
 
 app.add_handler(CommandHandler("profile", profile))
+app.add_handler(CommandHandler("opener", opener))
+
 
 
 app.run_polling()
