@@ -14,8 +14,6 @@ CHAT_GPT_TOKEN = os.getenv("OPENAI_TOKEN")
 
 #print(f"Бот запущен\nТокен: {TELEGRAM_BOT_TOKEN}\nТокен для ChatGPT: {CHAT_GPT_TOKEN}")
 
-
-
 async def start(update, context):
     dialog.mode = "main"
     text = load_message("main")
@@ -67,7 +65,27 @@ async def hello_button(update, context):
     else:
         await send_text(update, context, "Процесс остановлен")
 
-        
+async def date(update, context):
+    dialog.mode = "date"
+    text = load_message("date")
+    await send_photo(update, context, "date")
+    await send_text_buttons(update, context, text, {
+        "date_grande": "Ариана Гранде",
+        "date_robbie": "Марго Робби",
+        "date_zendaya": "Зендея",
+        "date_gosling": "Райан Гослинг",
+        "date_hardy": "Том Харди"
+    })
+
+async def date_dialog(update, context):
+    pass
+
+async def date_button(update, context):
+    query= update.callback_query.data
+    await update.callback_query.answer() # чтобы убрать "часики" на кнопке  
+    await send_photo(update, context,query  ) # query[5:] - отрезаем "date_" в начале строки
+    await send_text(update, context, f"Вы выбрали {query[5:].capitalize()}")
+
 dialog= Dialog() # глобальная переменная для хранения состояния диалога
 dialog.mode= None
 
@@ -77,7 +95,10 @@ app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
 app.add_handler(CommandHandler("start", start))
     
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
-app.add_handler(CallbackQueryHandler(hello_button))
+#app.add_handler(CallbackQueryHandler(hello_button))
 app.add_handler(CommandHandler("gpt", gpt))
+
+app.add_handler(CommandHandler("date", date))
+app.add_handler(CallbackQueryHandler(date_button, pattern="^date_.*"))
 
 app.run_polling()
