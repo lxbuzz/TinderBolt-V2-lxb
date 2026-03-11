@@ -5,14 +5,11 @@ from util import *
 
 import os
 from dotenv import load_dotenv
-
 load_dotenv()
 
 # тут будем писать наш код :)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_GPT_TOKEN = os.getenv("OPENAI_TOKEN")
-
-#print(f"Бот запущен\nТокен: {TELEGRAM_BOT_TOKEN}\nТокен для ChatGPT: {CHAT_GPT_TOKEN}")
 
 async def start(update, context):
     dialog.mode = "main"
@@ -92,19 +89,8 @@ async def hello(update, context):
         await send_text(update, context, "Вы написали " + update.message.text)
 
         await send_photo(update, context, "avatar_main")
-        """await send_text_buttons(update, context, "Запустить процесс?", {
-            "start": "Запустить",
-            "stop": "Остановить"
-        })"""    
 
 
-
-"""async def hello_button(update, context):
-    query = update.callback_query.data
-    if query == "start":
-        await send_text(update, context, "Процесс запущен")
-    else:
-        await send_text(update, context, "Процесс остановлен")"""
 
 async def date(update, context):
     dialog.mode = "date"
